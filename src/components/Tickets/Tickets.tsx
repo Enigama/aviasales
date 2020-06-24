@@ -1,31 +1,33 @@
-import * as React from 'react';
-import axios from 'axios';
+import * as React from "react";
+import axios from "axios";
 
 import Ticket from "../Ticket/Ticket";
 
 interface State {
-  id: String,
-  tickets: Array<object>
+  id: String;
+  tickets: Array<object>;
 }
 
-export default class Tickets extends React.Component<any, any>{
+export default class Tickets extends React.Component<any, any> {
   state: State = {
-    id: '',
+    id: "",
     tickets: [],
   };
 
   async componentDidMount() {
-     await this.getTicket();
+    await this.getTicket();
   }
 
-  getTicket(){
-    axios.get('https://front-test.beta.aviasales.ru/search')
-      .then((data: {data: {}}) => {
-        const {searchId} = data.data;
-        this.setState((id: State) => {
+  getTicket() {
+    axios
+      .get("https://front-test.beta.aviasales.ru/search")
+      .then((data: { data: { searchId: String } }) => {
+        const { searchId } = data.data;
+
+        this.setState(() => {
           return {
-            id: searchId
-          }
+            id: searchId,
+          };
         });
 
         if (this.state.id) {
@@ -34,42 +36,37 @@ export default class Tickets extends React.Component<any, any>{
           this.getTicket();
         }
       })
-      .catch(() => this.getTicket())
+      .catch(() => this.getTicket());
   }
 
-  setTicket(){
-    axios.get(`https://front-test.beta.aviasales.ru/tickets?searchId=${this.state.id}`)
-      .then((data: {data: {tickets: []}}) => {
-        this.setState((tickets: []) => {
-          return {
-            tickets: [
-              ...data.data.tickets
-            ]
-          }
-        })
-      })
-  }
-
-  renderTicket(){
-    const items = this.state.tickets.map((ticket: object, index: number) => {
-      return (
-        <Ticket ticket={ticket} key={index}/>
+  setTicket() {
+    axios
+      .get(
+        `https://front-test.beta.aviasales.ru/tickets?searchId=${this.state.id}`
       )
+      .then((data: { data: { tickets: [] } }) => {
+        this.setState(() => {
+          return {
+            tickets: [...data.data.tickets],
+          };
+        });
+      })
+      .catch(() => this.getTicket());
+  }
+
+  renderTicket() {
+    const items = this.state.tickets.map((ticket: object, index: number) => {
+      return <Ticket ticket={ticket} key={index} />;
     });
 
-    return (
-      <ul className='tickets__list'>
-        {items}
-      </ul>
-    )
+    return <ul className="tickets__list">{items}</ul>;
   }
-  render(){
-    return(
+  render() {
+    return (
       <div className="tickets">
         Tickets
         {this.renderTicket()}
       </div>
-    )
+    );
   }
-
 }
